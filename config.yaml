@@ -1,0 +1,6 @@
+port: :80
+
+elasticsearch:
+  host:
+    - es:9200
+  log: true
