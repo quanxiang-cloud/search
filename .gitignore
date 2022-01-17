@@ -8,7 +8,7 @@
 .vscode
 .DS_Store
 .idea
-_debug_bin
+__debug_bin
 
 # Test binary, built with `go test -c`
 *.test
