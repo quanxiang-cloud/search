@@ -2,5 +2,6 @@ port: :80
 
 elasticsearch:
   host:
-    - es:9200
+    - http://192.168.200.19:9200
+    - http://192.168.200.20:9200
   log: true
