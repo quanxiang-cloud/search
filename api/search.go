@@ -15,15 +15,63 @@ type search struct {
 
 func (s *search) SearchUser(c *gin.Context) {
 	query := c.Query("query")
-	result, err := s.s.SearchUser(header.MutateContext(c), &service.SearchUserReq{
-		Query: query,
-	})
+
+	req := &service.SearchUserReq{}
+
+	req.Query = query
+	result, err := s.s.SearchUser(header.MutateContext(c), req)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 	c.JSON(http.StatusOK, transform(result.Data, "user"))
+}
+
+func (s *search) DepartmentMember(c *gin.Context) {
+	query := c.Query("query")
+
+	req := &service.DepartmentMemberReq{}
+
+	req.Query = query
+	result, err := s.s.DepartmentMember(header.MutateContext(c), req)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	c.JSON(http.StatusOK, transform(result.Data, "department"))
+}
+
+func (s *search) Subordinate(c *gin.Context) {
+	query := c.Query("query")
+
+	req := &service.SubordinateReq{}
+	req.UserID = c.GetHeader("User-Id")
+
+	req.Query = query
+	result, err := s.s.Subordinate(header.MutateContext(c), req)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	c.JSON(http.StatusOK, transform(result.Data, "subordinate"))
+}
+
+func (s *search) RoleMember(c *gin.Context) {
+	query := c.Query("query")
+
+	req := &service.RoleMemberReq{}
+
+	req.Query = query
+	result, err := s.s.RoleMember(header.MutateContext(c), req)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	c.JSON(http.StatusOK, transform(result.Data, "role"))
 }
 
 func transform(data interface{}, name string) map[string]interface{} {

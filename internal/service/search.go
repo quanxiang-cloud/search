@@ -43,10 +43,14 @@ func (s *Search) newSchema() error {
 	return nil
 }
 
-type SearchUserReq struct {
+type base struct {
 	UserID       string
 	DepartmentID string
 	Query        string
+}
+
+type SearchUserReq struct {
+	base
 }
 
 type SearchUserResp struct {
@@ -54,25 +58,91 @@ type SearchUserResp struct {
 }
 
 func (s *Search) SearchUser(ctx context.Context, req *SearchUserReq) (*SearchUserResp, error) {
+	data, err := s.search(ctx, s.querySchema, req.base)
+	if err != nil {
+		return &SearchUserResp{}, err
+	}
+
+	return &SearchUserResp{
+		Data: data,
+	}, nil
+}
+
+type DepartmentMemberReq struct {
+	base
+}
+
+type DepartmentMemberResp struct {
+	Data interface{}
+}
+
+func (s *Search) DepartmentMember(ctx context.Context, req *DepartmentMemberReq) (*DepartmentMemberResp, error) {
+	data, err := s.search(ctx, s.departmentMemberSchema, req.base)
+	if err != nil {
+		return &DepartmentMemberResp{}, err
+	}
+
+	return &DepartmentMemberResp{
+		Data: data,
+	}, nil
+}
+
+type SubordinateReq struct {
+	base
+}
+
+type SubordinateResp struct {
+	Data interface{}
+}
+
+func (s *Search) Subordinate(ctx context.Context, req *SubordinateReq) (*SubordinateResp, error) {
+	data, err := s.search(ctx, s.subordinateSchema, req.base)
+	if err != nil {
+		return &SubordinateResp{}, err
+	}
+
+	return &SubordinateResp{
+		Data: data,
+	}, nil
+}
+
+type RoleMemberReq struct {
+	base
+}
+
+type RoleMemberResp struct {
+	Data interface{}
+}
+
+func (s *Search) RoleMember(ctx context.Context, req *RoleMemberReq) (*RoleMemberResp, error) {
+	data, err := s.search(ctx, s.rolememberSchema, req.base)
+	if err != nil {
+		return &RoleMemberResp{}, err
+	}
+
+	return &RoleMemberResp{
+		Data: data,
+	}, nil
+}
+
+func (s *Search) search(ctx context.Context, schema graphql.Schema, base base) (interface{}, error) {
 	params := graphql.Params{
 		Context:       ctx,
-		Schema:        s.userSchema,
-		RequestString: req.Query,
+		Schema:        schema,
+		RequestString: base.Query,
 		RootObject: map[string]interface{}{
-			"userID":       req.UserID,
-			"departmentID": req.DepartmentID,
+			"userID":       base.UserID,
+			"departmentID": base.DepartmentID,
 		},
 	}
 
 	result := graphql.Do(params)
 	if len(result.Errors) > 0 {
 		logErrors(s.log, result.Errors...)
-		return &SearchUserResp{}, result.Errors[0]
+		return nil, result.Errors[0]
 	}
 
-	return &SearchUserResp{
-		Data: result.Data,
-	}, nil
+	return result.Data, nil
 }
 
 func logErrors(log logr.Logger, errors ...gqlerrors.FormattedError) {

@@ -28,30 +28,37 @@ func (u *user) index() string {
 }
 
 func (u *user) Search(ctx context.Context, query *models.SearchUser, page, size int) ([]*models.User, int64, error) {
-	boolQuery := elastic.NewBoolQuery()
+	ql := u.client.Search().Index(u.index())
 
-	mustQuery := make([]elastic.Query, 0)
-	if query.Name != "" {
-		mustQuery = append(mustQuery, elastic.NewMatchQuery("name", query.Name))
-	}
-	if query.Phone != "" {
-		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("phone", query.Phone))
-	}
-	if query.Email != "" {
-		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("email", query.Email))
-	}
-	if query.DepartmentName != "" {
-		mustQuery = append(mustQuery, elastic.NewMatchQuery("departments.name", query.DepartmentName))
-	}
-	if query.RoleName != "" {
-		mustQuery = append(mustQuery, elastic.NewMatchQuery("roles.name", query.RoleName))
-	}
+	switch {
+	case query.DepartmentID != "":
+		ql = ql.Query(elastic.NewTermQuery("departments.id", query.DepartmentID))
+	case query.RoleID != "":
+		ql = ql.Query(elastic.NewTermQuery("roles.id", query.RoleID))
+	case query.LeaderID != "":
+		ql = ql.Query(elastic.NewTermQuery("leaders.id", query.LeaderID))
+	default:
+		boolQuery := elastic.NewBoolQuery()
+		mustQuery := make([]elastic.Query, 0)
+		if query.Name != "" {
+			mustQuery = append(mustQuery, elastic.NewMatchQuery("name", query.Name))
+		}
+		if query.Phone != "" {
+			mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("phone", query.Phone))
+		}
+		if query.Email != "" {
+			mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("email", query.Email))
+		}
+		if query.DepartmentName != "" {
+			mustQuery = append(mustQuery, elastic.NewMatchQuery("departments.name", query.DepartmentName))
+		}
+		if query.RoleName != "" {
+			mustQuery = append(mustQuery, elastic.NewMatchQuery("roles.name", query.RoleName))
+		}
 
-	boolQuery = boolQuery.Must(mustQuery...)
-
-	ql := u.client.Search().
-		Index(u.index()).
-		Query(boolQuery)
+		boolQuery = boolQuery.Must(mustQuery...)
+		ql = ql.Query(boolQuery)
+	}
 
 	for _, orderBy := range query.OrderBy {
 		if strings.HasPrefix(orderBy, "-") {
@@ -63,6 +70,7 @@ func (u *user) Search(ctx context.Context, query *models.SearchUser, page, size 
 
 	result, err := ql.From((page - 1) * size).Size(size).
 		Do(ctx)
+
 	if err != nil {
 		u.log.Error(err, "user search")
 		return nil, 0, err
