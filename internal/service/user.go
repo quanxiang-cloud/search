@@ -18,9 +18,6 @@ var department = graphql.NewObject(
 			"name": &graphql.Field{
 				Type: graphql.String,
 			},
-			"isLeader": &graphql.Field{
-				Type: graphql.Int,
-			},
 		},
 	},
 )
@@ -28,6 +25,20 @@ var department = graphql.NewObject(
 var role = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "role",
+		Fields: graphql.Fields{
+			"id": &graphql.Field{
+				Type: graphql.String,
+			},
+			"name": &graphql.Field{
+				Type: graphql.String,
+			},
+		},
+	},
+)
+
+var leader = graphql.NewObject(
+	graphql.ObjectConfig{
+		Name: "leader",
 		Fields: graphql.Fields{
 			"id": &graphql.Field{
 				Type: graphql.String,
@@ -63,6 +74,9 @@ var UserInfo = graphql.NewObject(
 			},
 			"roles": &graphql.Field{
 				Type: graphql.NewList(role),
+			},
+			"leaders": &graphql.Field{
+				Type: graphql.NewList(leader),
 			},
 		},
 	},

@@ -14,19 +14,19 @@ type User struct {
 	Departments []Department `json:"departments,omitempty"`
 
 	// Leaders recent leader to top leader.
-	Leaders []Leader
+	Leaders []Leader `json:"leaders,omitempty"`
 
 	Roles []Role `json:"roles,omitempty"`
 }
 
 type Department struct {
-	ID       string `json:"id,omitempty"`
-	Name     string `json:"name,omitempty"`
-	IsLeader int    `json:"isLeader,omitempty"`
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
 }
 
 type Leader struct {
-	ID string
+	ID   string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
 }
 
 type Role struct {
