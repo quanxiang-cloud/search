@@ -51,5 +51,7 @@ type SearchUser struct {
 }
 
 type UserRepo interface {
+	Get(ctx context.Context, userID string) (*User, error)
+	List(ctx context.Context, userIDs []interface{}) ([]*User, error)
 	Search(ctx context.Context, query *SearchUser, page, size int) ([]*User, int64, error)
 }

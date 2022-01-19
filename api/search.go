@@ -59,6 +59,22 @@ func (s *search) Subordinate(c *gin.Context) {
 	c.JSON(http.StatusOK, transform(result.Data, "subordinate"))
 }
 
+func (s *search) Leader(c *gin.Context) {
+	query := c.Query("query")
+
+	req := &service.LeaderReq{}
+	req.UserID = c.GetHeader("User-Id")
+
+	req.Query = query
+	result, err := s.s.Leader(header.MutateContext(c), req)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	c.JSON(http.StatusOK, transform(result.Data, "leader"))
+}
+
 func (s *search) RoleMember(c *gin.Context) {
 	query := c.Query("query")
 

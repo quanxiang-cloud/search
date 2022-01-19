@@ -1,83 +1,108 @@
 {
-    "mappings": {
-      "properties": {
-        "name": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword",
-              "ignore_above": 256
-            }
-          }
-        },
-        "phone": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword",
-              "ignore_above": 256
-            }
-          }
-        },
-        "email": {
-          "type": "text",
-          "fields": {
-            "keyword": {
-              "type": "keyword",
-              "ignore_above": 256
-            }
-          }
-        },
-        "departments": {
-          "properties": {
-            "id": {
-              "type": "text",
-              "fields": {
-                "keyword": {
-                  "type": "keyword",
-                  "ignore_above": 256
+    "user" : {
+      "mappings" : {
+        "properties" : {
+          "createdAt" : {
+            "type" : "date"
+          },
+          "departments" : {
+            "properties" : {
+              "id" : {
+                "type" : "text",
+                "fields" : {
+                  "keyword" : {
+                    "type" : "keyword",
+                    "ignore_above" : 256
+                  }
                 }
-              }
-            },
-            "name": {
-              "type": "text",
-              "fields": {
-                "keyword": {
-                  "type": "keyword",
-                  "ignore_above": 256
-                }
-              }
-            },
-            "idLeader": {
-              "type": "integer"
-            }
-          }
-        },
-        "roles": {
-          "properties": {
-            "id": {
-              "type": "text",
-              "fields": {
-                "keyword": {
-                  "type": "keyword",
-                  "ignore_above": 256
-                }
-              }
-            },
-            "name": {
-              "type": "text",
-              "fields": {
-                "keyword": {
-                  "type": "keyword",
-                  "ignore_above": 256
+              },
+              "idLeader" : {
+                "type" : "integer"
+              },
+              "name" : {
+                "type" : "text",
+                "fields" : {
+                  "keyword" : {
+                    "type" : "keyword",
+                    "ignore_above" : 256
+                  }
                 }
               }
             }
+          },
+          "email" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "id" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "leaders" : {
+            "properties" : {
+              "id" : {
+                "type" : "text",
+                "fields" : {
+                  "keyword" : {
+                    "type" : "keyword",
+                    "ignore_above" : 256
+                  }
+                }
+              }
+            }
+          },
+          "name" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "phone" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "roles" : {
+            "properties" : {
+              "id" : {
+                "type" : "text",
+                "fields" : {
+                  "keyword" : {
+                    "type" : "keyword",
+                    "ignore_above" : 256
+                  }
+                }
+              },
+              "name" : {
+                "type" : "text",
+                "fields" : {
+                  "keyword" : {
+                    "type" : "keyword",
+                    "ignore_above" : 256
+                  }
+                }
+              }
+            }
           }
-        },
-        "createdAt": {
-          "type": "date"
         }
       }
     }
   }
+  

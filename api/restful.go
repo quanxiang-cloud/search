@@ -45,6 +45,7 @@ func NewRouter(ctx context.Context, conf *config.Config) (*Router, error) {
 		v1.GET("/user", s.SearchUser)
 		v1.GET("/department/member", s.DepartmentMember)
 		v1.GET("/subordinate", s.Subordinate)
+		v1.GET("/leader", s.Leader)
 		v1.GET("/role/member", s.RoleMember)
 	}
 

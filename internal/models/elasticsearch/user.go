@@ -27,6 +27,54 @@ func (u *user) index() string {
 	return "user"
 }
 
+func (u *user) Get(ctx context.Context, userID string) (*models.User, error) {
+	result, err := u.client.Search().
+		Index(u.index()).
+		Query(
+			elastic.NewTermQuery("id", userID),
+		).
+		Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(result.Hits.Hits) == 0 {
+		return nil, nil
+	}
+
+	user := new(models.User)
+	err = json.Unmarshal(result.Hits.Hits[0].Source, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (u *user) List(ctx context.Context, userIDs []interface{}) ([]*models.User, error) {
+	result, err := u.client.Search().
+		Index(u.index()).
+		Query(
+			elastic.NewTermsQuery("id", userIDs...),
+		).
+		Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	users := make([]*models.User, 0, len(userIDs))
+	for _, hit := range result.Hits.Hits {
+		user := new(models.User)
+		err := json.Unmarshal(hit.Source, user)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
 func (u *user) Search(ctx context.Context, query *models.SearchUser, page, size int) ([]*models.User, int64, error) {
 	ql := u.client.Search().Index(u.index())
 
@@ -76,19 +124,15 @@ func (u *user) Search(ctx context.Context, query *models.SearchUser, page, size 
 		return nil, 0, err
 	}
 
-	var total int64
 	users := make([]*models.User, 0, size)
-	if result.Hits != nil {
-		for _, hit := range result.Hits.Hits {
-			user := new(models.User)
-			err := json.Unmarshal(hit.Source, user)
-			if err != nil {
-				return nil, 0, err
-			}
-			users = append(users, user)
+	for _, hit := range result.Hits.Hits {
+		user := new(models.User)
+		err := json.Unmarshal(hit.Source, user)
+		if err != nil {
+			return nil, 0, err
 		}
-		total = result.Hits.TotalHits.Value
+		users = append(users, user)
 	}
 
-	return users, total, nil
+	return users, result.Hits.TotalHits.Value, nil
 }

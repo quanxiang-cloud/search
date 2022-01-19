@@ -256,6 +256,42 @@ func (u *user) subordinate() error {
 }
 
 func (u *user) leader() error {
+	schema, err := graphql.NewSchema(graphql.SchemaConfig{
+		Query: graphql.NewObject(graphql.ObjectConfig{
+			Name: "_leader",
+			Fields: graphql.Fields{
+				"leader": &graphql.Field{
+					Type: graphql.NewList(UserInfo),
+					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+						ctx := p.Context
+						userID := p.Source.(map[string]interface{})["userID"]
+						whoami, err := u.userRepo.Get(ctx, userID.(string))
+						if err != nil {
+							return nil, err
+						}
+						// very serious error, once here is nil,
+						// it means the data is inconsistent
+						if whoami == nil {
+							return nil, fmt.Errorf("user not exist")
+						}
+
+						leaderIDs := make([]interface{}, 0, len(whoami.Leaders))
+						for _, leader := range whoami.Leaders {
+							leaderIDs = append(leaderIDs, leader.ID)
+						}
+
+						return u.userRepo.List(ctx, leaderIDs)
+					},
+				},
+			},
+		}),
+	})
+
+	if err != nil {
+		return err
+	}
+
+	u.leaderSchema = schema
 	return nil
 }
 

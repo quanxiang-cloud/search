@@ -106,6 +106,25 @@ func (s *Search) Subordinate(ctx context.Context, req *SubordinateReq) (*Subordi
 	}, nil
 }
 
+type LeaderReq struct {
+	base
+}
+
+type LeaderResp struct {
+	Data interface{}
+}
+
+func (s *Search) Leader(ctx context.Context, req *LeaderReq) (*LeaderResp, error) {
+	data, err := s.search(ctx, s.leaderSchema, req.base)
+	if err != nil {
+		return &LeaderResp{}, err
+	}
+
+	return &LeaderResp{
+		Data: data,
+	}, nil
+}
+
 type RoleMemberReq struct {
 	base
 }
