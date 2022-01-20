@@ -19,12 +19,12 @@ type Router struct {
 
 func NewRouter(ctx context.Context, conf *config.Config) (*Router, error) {
 	e := gin.New()
-	e.Use(ginlogger.GinLogger(), ginlogger.GinRecovery())
+	e.Use(ginlogger.LoggerFunc(), ginlogger.RecoveryFunc())
 
 	log := util.LoggerFromContext(ctx).WithName("router")
 
 	// FIXME logger with logr
-	esClient, err := elastic.NewClient(&conf.Elasticsearch, logger.New(nil))
+	esClient, err := elastic.NewClient(&conf.Elasticsearch, logger.NewFromLogr(log))
 	if err != nil {
 		log.Error(err, "new elastic client")
 		return nil, err

@@ -7,7 +7,7 @@ require (
 	github.com/go-logr/logr v1.2.2
 	github.com/go-logr/zapr v1.2.2
 	github.com/graphql-go/graphql v0.8.0
-	github.com/quanxiang-cloud/cabin v0.0.3
+	github.com/quanxiang-cloud/cabin v0.0.4
 	go.uber.org/zap v1.19.0
 	gopkg.in/yaml.v2 v2.4.0
 )
