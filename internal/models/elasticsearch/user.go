@@ -8,6 +8,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/olivere/elastic/v7"
 	"github.com/quanxiang-cloud/search/internal/models"
+	"github.com/quanxiang-cloud/search/pkg/apis/v1alpha1"
 	"github.com/quanxiang-cloud/search/pkg/util"
 )
 
@@ -27,7 +28,7 @@ func (u *user) index() string {
 	return "user"
 }
 
-func (u *user) Get(ctx context.Context, userID string) (*models.User, error) {
+func (u *user) Get(ctx context.Context, userID string) (*v1alpha1.User, error) {
 	result, err := u.client.Search().
 		Index(u.index()).
 		Query(
@@ -42,7 +43,7 @@ func (u *user) Get(ctx context.Context, userID string) (*models.User, error) {
 		return nil, nil
 	}
 
-	user := new(models.User)
+	user := new(v1alpha1.User)
 	err = json.Unmarshal(result.Hits.Hits[0].Source, user)
 	if err != nil {
 		return nil, err
@@ -51,7 +52,7 @@ func (u *user) Get(ctx context.Context, userID string) (*models.User, error) {
 	return user, nil
 }
 
-func (u *user) List(ctx context.Context, userIDs []interface{}) ([]*models.User, error) {
+func (u *user) List(ctx context.Context, userIDs []interface{}) ([]*v1alpha1.User, error) {
 	result, err := u.client.Search().
 		Index(u.index()).
 		Query(
@@ -62,9 +63,9 @@ func (u *user) List(ctx context.Context, userIDs []interface{}) ([]*models.User,
 		return nil, err
 	}
 
-	users := make([]*models.User, 0, len(userIDs))
+	users := make([]*v1alpha1.User, 0, len(userIDs))
 	for _, hit := range result.Hits.Hits {
-		user := new(models.User)
+		user := new(v1alpha1.User)
 		err := json.Unmarshal(hit.Source, user)
 		if err != nil {
 			return nil, err
@@ -75,7 +76,7 @@ func (u *user) List(ctx context.Context, userIDs []interface{}) ([]*models.User,
 	return users, nil
 }
 
-func (u *user) Search(ctx context.Context, query *models.SearchUser, page, size int) ([]*models.User, int64, error) {
+func (u *user) Search(ctx context.Context, query *v1alpha1.SearchUser, page, size int) ([]*v1alpha1.User, int64, error) {
 	ql := u.client.Search().Index(u.index())
 
 	switch {
@@ -124,9 +125,9 @@ func (u *user) Search(ctx context.Context, query *models.SearchUser, page, size 
 		return nil, 0, err
 	}
 
-	users := make([]*models.User, 0, size)
+	users := make([]*v1alpha1.User, 0, size)
 	for _, hit := range result.Hits.Hits {
-		user := new(models.User)
+		user := new(v1alpha1.User)
 		err := json.Unmarshal(hit.Source, user)
 		if err != nil {
 			return nil, 0, err

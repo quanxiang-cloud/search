@@ -6,6 +6,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/graphql-go/graphql"
 	"github.com/quanxiang-cloud/search/internal/models"
+	"github.com/quanxiang-cloud/search/pkg/apis/v1alpha1"
 )
 
 var department = graphql.NewObject(
@@ -142,7 +143,7 @@ func (u *user) newSchema() error {
 }
 
 func (u *user) resolve(p graphql.ResolveParams) (interface{}, error) {
-	query := &models.SearchUser{}
+	query := &v1alpha1.SearchUser{}
 	err := mapToStruct(query, p.Args)
 	if err != nil {
 		u.log.Error(err, "bind args")
@@ -159,8 +160,8 @@ func (u *user) resolve(p graphql.ResolveParams) (interface{}, error) {
 	}
 
 	return struct {
-		Total int64          `json:"total,omitempty"`
-		Users []*models.User `json:"users,omitempty"`
+		Total int64            `json:"total,omitempty"`
+		Users []*v1alpha1.User `json:"users,omitempty"`
 	}{
 		Total: total,
 		Users: users,
