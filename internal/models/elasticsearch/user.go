@@ -116,6 +116,7 @@ func (u *user) Search(ctx context.Context, query *v1alpha1.SearchUser, page, siz
 		}
 		ql = ql.Sort(orderBy, false)
 	}
+	ql = ql.Sort("name.keyword", true)
 
 	result, err := ql.From((page - 1) * size).Size(size).
 		Do(ctx)
