@@ -10,11 +10,11 @@ type User struct {
 	Avatar    string `json:"avatar,omitempty" `
 	//UseStatus 1:normal,-2:disable，-quit，-1：del,2:active
 	UseStatus int `json:"use_status,omitempty" `
-	//TenantID tenant id
-	TenantID string `json:"tenant_id,omitempty" ` //租户id
-	//Gender 1：man,2woman
+	// TenantID tenant id
+	TenantID string `json:"tenant_id,omitempty" `
+	// Gender 1：man,2woman
 	Gender int `json:"gender,omitempty" `
-	//Source where the info come from
+	// Source where the info come from
 	Source    string `json:"source,omitempty" `
 	SelfEmail string `json:"self_email,omitempty" `
 	// Departments arranged from the current user's department
