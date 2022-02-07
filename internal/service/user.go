@@ -33,6 +33,9 @@ var role = graphql.NewObject(
 			"name": &graphql.Field{
 				Type: graphql.String,
 			},
+			"pid": &graphql.Field{
+				Type: graphql.String,
+			},
 		},
 	},
 )
@@ -70,14 +73,35 @@ var UserInfo = graphql.NewObject(
 			"createdAt": &graphql.Field{
 				Type: graphql.Int,
 			},
+			"job_number": &graphql.Field{
+				Type: graphql.String,
+			},
+			"avatar": &graphql.Field{
+				Type: graphql.String,
+			},
+			"use_status": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"tenant_id": &graphql.Field{
+				Type: graphql.String,
+			},
+			"gender": &graphql.Field{
+				Type: graphql.Int,
+			},
+			"source": &graphql.Field{
+				Type: graphql.String,
+			},
+			"self_email": &graphql.Field{
+				Type: graphql.String,
+			},
 			"departments": &graphql.Field{
-				Type: graphql.NewList(department),
+				Type: graphql.NewList(graphql.NewList(department)),
 			},
 			"roles": &graphql.Field{
 				Type: graphql.NewList(role),
 			},
 			"leaders": &graphql.Field{
-				Type: graphql.NewList(leader),
+				Type: graphql.NewList(graphql.NewList(leader)),
 			},
 		},
 	},
@@ -183,6 +207,24 @@ func (u *user) query() error {
 							Type: graphql.String,
 						},
 						"email": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"job_number": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"use_status": &graphql.ArgumentConfig{
+							Type: graphql.Int,
+						},
+						"tenant_id": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"gender": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"source": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"self_email": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
 						"departmentName": &graphql.ArgumentConfig{
@@ -292,7 +334,10 @@ func (u *user) leader() error {
 
 						leaderIDs := make([]interface{}, 0, len(whoami.Leaders))
 						for _, leader := range whoami.Leaders {
-							leaderIDs = append(leaderIDs, leader.ID)
+							for _, l := range leader {
+								leaderIDs = append(leaderIDs, l.ID)
+							}
+
 						}
 
 						return u.userRepo.List(ctx, leaderIDs)
