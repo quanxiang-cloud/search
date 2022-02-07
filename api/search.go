@@ -17,6 +17,7 @@ func (s *search) SearchUser(c *gin.Context) {
 	query := c.Query("query")
 
 	req := &service.SearchUserReq{}
+	req.TenantID = c.GetHeader("Tenant-Id")
 
 	req.Query = query
 	result, err := s.s.SearchUser(header.MutateContext(c), req)
@@ -25,13 +26,14 @@ func (s *search) SearchUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	c.JSON(http.StatusOK, transform(result.Data, "user"))
+	c.JSON(http.StatusOK, transform(result.Data, "query"))
 }
 
 func (s *search) DepartmentMember(c *gin.Context) {
 	query := c.Query("query")
 
 	req := &service.DepartmentMemberReq{}
+	req.TenantID = c.GetHeader("Tenant-Id")
 
 	req.Query = query
 	result, err := s.s.DepartmentMember(header.MutateContext(c), req)
@@ -40,7 +42,7 @@ func (s *search) DepartmentMember(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	c.JSON(http.StatusOK, transform(result.Data, "department"))
+	c.JSON(http.StatusOK, transform(result.Data, "query"))
 }
 
 func (s *search) Subordinate(c *gin.Context) {
@@ -48,6 +50,7 @@ func (s *search) Subordinate(c *gin.Context) {
 
 	req := &service.SubordinateReq{}
 	req.UserID = c.GetHeader("User-Id")
+	req.TenantID = c.GetHeader("Tenant-Id")
 
 	req.Query = query
 	result, err := s.s.Subordinate(header.MutateContext(c), req)
@@ -56,7 +59,7 @@ func (s *search) Subordinate(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	c.JSON(http.StatusOK, transform(result.Data, "subordinate"))
+	c.JSON(http.StatusOK, transform(result.Data, "query"))
 }
 
 func (s *search) Leader(c *gin.Context) {
@@ -64,6 +67,7 @@ func (s *search) Leader(c *gin.Context) {
 
 	req := &service.LeaderReq{}
 	req.UserID = c.GetHeader("User-Id")
+	req.TenantID = c.GetHeader("Tenant-Id")
 
 	req.Query = query
 	result, err := s.s.Leader(header.MutateContext(c), req)
@@ -72,13 +76,14 @@ func (s *search) Leader(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	c.JSON(http.StatusOK, transform(result.Data, "leader"))
+	c.JSON(http.StatusOK, transform(result.Data, "query"))
 }
 
 func (s *search) RoleMember(c *gin.Context) {
 	query := c.Query("query")
 
 	req := &service.RoleMemberReq{}
+	req.TenantID = c.GetHeader("Tenant-Id")
 
 	req.Query = query
 	result, err := s.s.RoleMember(header.MutateContext(c), req)
@@ -87,7 +92,7 @@ func (s *search) RoleMember(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
-	c.JSON(http.StatusOK, transform(result.Data, "role"))
+	c.JSON(http.StatusOK, transform(result.Data, "query"))
 }
 
 func transform(data interface{}, name string) map[string]interface{} {

@@ -79,35 +79,49 @@ func (u *user) List(ctx context.Context, userIDs []interface{}) ([]*v1alpha1.Use
 func (u *user) Search(ctx context.Context, query *v1alpha1.SearchUser, page, size int) ([]*v1alpha1.User, int64, error) {
 	ql := u.client.Search().Index(u.index())
 
-	switch {
-	case query.DepartmentID != "":
-		ql = ql.Query(elastic.NewTermQuery("departments.id", query.DepartmentID))
-	case query.RoleID != "":
-		ql = ql.Query(elastic.NewTermQuery("roles.id", query.RoleID))
-	case query.LeaderID != "":
-		ql = ql.Query(elastic.NewTermQuery("leaders.id", query.LeaderID))
-	default:
-		boolQuery := elastic.NewBoolQuery()
-		mustQuery := make([]elastic.Query, 0)
-		if query.Name != "" {
-			mustQuery = append(mustQuery, elastic.NewMatchQuery("name", query.Name))
-		}
-		if query.Phone != "" {
-			mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("phone", query.Phone))
-		}
-		if query.Email != "" {
-			mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("email", query.Email))
-		}
-		if query.DepartmentName != "" {
-			mustQuery = append(mustQuery, elastic.NewMatchQuery("departments.name", query.DepartmentName))
-		}
-		if query.RoleName != "" {
-			mustQuery = append(mustQuery, elastic.NewMatchQuery("roles.name", query.RoleName))
-		}
+	mustQuery := make([]elastic.Query, 0)
 
-		boolQuery = boolQuery.Must(mustQuery...)
-		ql = ql.Query(boolQuery)
+	mustQuery = append(mustQuery, elastic.NewTermQuery("tenantID", query.TenantID))
+
+	if query.DepartmentID != "" {
+		mustQuery = append(mustQuery, elastic.NewTermQuery("departments.id", query.DepartmentID))
 	}
+	if query.RoleID != "" {
+		mustQuery = append(mustQuery, elastic.NewTermQuery("roles.id", query.RoleID))
+	}
+	if query.LeaderID != "" {
+		mustQuery = append(mustQuery, elastic.NewTermQuery("leaders.id", query.LeaderID))
+	}
+	if query.Name != "" {
+		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("name", query.Name))
+	}
+	if query.Phone != "" {
+		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("phone", query.Phone))
+	}
+	if query.Email != "" {
+		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("email", query.Email))
+	}
+	if query.JobNumber != "" {
+		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("jobNumber", query.JobNumber))
+	}
+	if query.Gender != "" {
+		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("gender", query.Gender))
+	}
+	if query.JobNumber != "" {
+		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("jobNumber", query.JobNumber))
+	}
+	if query.UseStatus != 0 {
+		mustQuery = append(mustQuery, elastic.NewTermQuery("useStatus", query.UseStatus))
+	}
+
+	if query.DepartmentName != "" {
+		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("departments.name", query.DepartmentName))
+	}
+	if query.RoleName != "" {
+		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("roles.name", query.RoleName))
+	}
+
+	ql = ql.Query(elastic.NewBoolQuery().Must(mustQuery...))
 
 	for _, orderBy := range query.OrderBy {
 		if strings.HasPrefix(orderBy, "-") {

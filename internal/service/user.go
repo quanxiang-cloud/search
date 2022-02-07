@@ -73,16 +73,16 @@ var UserInfo = graphql.NewObject(
 			"createdAt": &graphql.Field{
 				Type: graphql.Int,
 			},
-			"job_number": &graphql.Field{
+			"jobNumber": &graphql.Field{
 				Type: graphql.String,
 			},
 			"avatar": &graphql.Field{
 				Type: graphql.String,
 			},
-			"use_status": &graphql.Field{
+			"useStatus": &graphql.Field{
 				Type: graphql.Int,
 			},
-			"tenant_id": &graphql.Field{
+			"tenantID": &graphql.Field{
 				Type: graphql.String,
 			},
 			"gender": &graphql.Field{
@@ -91,7 +91,7 @@ var UserInfo = graphql.NewObject(
 			"source": &graphql.Field{
 				Type: graphql.String,
 			},
-			"self_email": &graphql.Field{
+			"selfEmail": &graphql.Field{
 				Type: graphql.String,
 			},
 			"departments": &graphql.Field{
@@ -167,7 +167,9 @@ func (u *user) newSchema() error {
 }
 
 func (u *user) resolve(p graphql.ResolveParams) (interface{}, error) {
-	query := &v1alpha1.SearchUser{}
+	query := &v1alpha1.SearchUser{
+		TenantID: p.Source.(map[string]interface{})["tenantID"].(string),
+	}
 	err := mapToStruct(query, p.Args)
 	if err != nil {
 		u.log.Error(err, "bind args")
@@ -197,7 +199,7 @@ func (u *user) query() error {
 		Query: graphql.NewObject(graphql.ObjectConfig{
 			Name: "_queryUsers",
 			Fields: graphql.Fields{
-				"user": &graphql.Field{
+				"query": &graphql.Field{
 					Type: users,
 					Args: newPageFeild(graphql.FieldConfigArgument{
 						"name": &graphql.ArgumentConfig{
@@ -209,22 +211,13 @@ func (u *user) query() error {
 						"email": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
-						"job_number": &graphql.ArgumentConfig{
+						"jobNumber": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
-						"use_status": &graphql.ArgumentConfig{
+						"useStatus": &graphql.ArgumentConfig{
 							Type: graphql.Int,
 						},
-						"tenant_id": &graphql.ArgumentConfig{
-							Type: graphql.String,
-						},
 						"gender": &graphql.ArgumentConfig{
-							Type: graphql.String,
-						},
-						"source": &graphql.ArgumentConfig{
-							Type: graphql.String,
-						},
-						"self_email": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
 						"departmentName": &graphql.ArgumentConfig{
@@ -255,22 +248,30 @@ func (u *user) departmentMember() error {
 		Query: graphql.NewObject(graphql.ObjectConfig{
 			Name: "_departmentMember",
 			Fields: graphql.Fields{
-				"department": &graphql.Field{
+				"query": &graphql.Field{
 					Type: users,
 					Args: newPageFeild(graphql.FieldConfigArgument{
-						"id": &graphql.ArgumentConfig{
+						"departmentID": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"name": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"phone": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"email": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"roleName": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
 					},
 					),
 					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-						if p.Args["id"] == "" {
-							return nil, fmt.Errorf("id is must")
+						if p.Args["departmentID"] == "" {
+							return nil, fmt.Errorf("department id is must")
 						}
-
-						// rename
-						p.Args["departmentID"] = p.Args["id"]
-						delete(p.Args, "id")
 
 						return u.resolve(p)
 					},
@@ -292,9 +293,26 @@ func (u *user) subordinate() error {
 		Query: graphql.NewObject(graphql.ObjectConfig{
 			Name: "_subordinate",
 			Fields: graphql.Fields{
-				"subordinate": &graphql.Field{
+				"query": &graphql.Field{
 					Type: users,
-					Args: newPageFeild(graphql.FieldConfigArgument{}),
+					Args: newPageFeild(graphql.FieldConfigArgument{
+						"departmentID": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"name": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"phone": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"email": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"roleName": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+					},
+					),
 					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 						p.Args["leaderID"] = p.Source.(map[string]interface{})["userID"]
 						return u.resolve(p)
@@ -317,7 +335,7 @@ func (u *user) leader() error {
 		Query: graphql.NewObject(graphql.ObjectConfig{
 			Name: "_leader",
 			Fields: graphql.Fields{
-				"leader": &graphql.Field{
+				"query": &graphql.Field{
 					Type: graphql.NewList(UserInfo),
 					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 						ctx := p.Context
@@ -360,25 +378,27 @@ func (u *user) roleMember() error {
 		Query: graphql.NewObject(graphql.ObjectConfig{
 			Name: "_roleMember",
 			Fields: graphql.Fields{
-				"role": &graphql.Field{
+				"query": &graphql.Field{
 					Type: users,
 					Args: newPageFeild(graphql.FieldConfigArgument{
-						"id": &graphql.ArgumentConfig{
+						"roleID": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
 						"name": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
+						"phone": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"email": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"departmentName": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
 					},
 					),
 					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-						// rename
-						p.Args["roleID"] = p.Args["id"]
-						delete(p.Args, "id")
-
-						p.Args["roleName"] = p.Args["name"]
-						delete(p.Args, "name")
-
 						return u.resolve(p)
 					},
 				},
