@@ -11,6 +11,7 @@ import (
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/graphql/gqlerrors"
 	"github.com/graphql-go/graphql/language/ast"
+	"github.com/quanxiang-cloud/cabin/tailormade/header"
 	"github.com/quanxiang-cloud/search/pkg/util"
 )
 
@@ -44,9 +45,10 @@ func (s *Search) newSchema() error {
 }
 
 type base struct {
-	UserID       string
-	DepartmentID string
-	Query        string
+	UserID       string `json:"userID,omitempty"`
+	DepartmentID string `json:"departmentID,omitempty"`
+	TenantID     string `json:"tenantID,omitempty"`
+	Query        string `json:"query,omitempty"`
 }
 
 type SearchUserReq struct {
@@ -145,6 +147,11 @@ func (s *Search) RoleMember(ctx context.Context, req *RoleMemberReq) (*RoleMembe
 }
 
 func (s *Search) search(ctx context.Context, schema graphql.Schema, base base) (interface{}, error) {
+	if base.TenantID == "" {
+		err := fmt.Errorf("tenant id is must")
+		s.log.Info(err.Error(), header.GetRequestIDKV(ctx).Fuzzy()...)
+		return nil, err
+	}
 	params := graphql.Params{
 		Context:       ctx,
 		Schema:        schema,
@@ -152,21 +159,22 @@ func (s *Search) search(ctx context.Context, schema graphql.Schema, base base) (
 		RootObject: map[string]interface{}{
 			"userID":       base.UserID,
 			"departmentID": base.DepartmentID,
+			"tenantID":     base.TenantID,
 		},
 	}
 
 	result := graphql.Do(params)
 	if len(result.Errors) > 0 {
-		logErrors(s.log, result.Errors...)
+		logErrors(ctx, s.log, result.Errors...)
 		return nil, result.Errors[0]
 	}
 
 	return result.Data, nil
 }
 
-func logErrors(log logr.Logger, errors ...gqlerrors.FormattedError) {
+func logErrors(ctx context.Context, log logr.Logger, errors ...gqlerrors.FormattedError) {
 	for _, err := range errors {
-		log.Info(err.Message)
+		log.Info(err.Message, header.GetRequestIDKV(ctx).Fuzzy()...)
 	}
 }
 
