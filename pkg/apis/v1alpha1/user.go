@@ -13,7 +13,7 @@ type User struct {
 	UseStatus int `json:"useStatus,omitempty"`
 
 	// TenantID tenant id
-	// TenantID string`json:"tenantID,omitempty"`
+	TenantID string `json:"tenantID,omitempty"`
 
 	// Gender 1:man,2: woman
 	Gender int `json:"gender,omitempty"`
