@@ -19,6 +19,9 @@ var department = graphql.NewObject(
 			"name": &graphql.Field{
 				Type: graphql.String,
 			},
+			"attr": &graphql.Field{
+				Type: graphql.String,
+			},
 		},
 	},
 )
@@ -48,6 +51,9 @@ var leader = graphql.NewObject(
 				Type: graphql.String,
 			},
 			"name": &graphql.Field{
+				Type: graphql.String,
+			},
+			"attr": &graphql.Field{
 				Type: graphql.String,
 			},
 		},
