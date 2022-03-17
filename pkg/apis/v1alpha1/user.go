@@ -21,6 +21,7 @@ type User struct {
 	// Source where the info come from
 	Source    string `json:"source,omitempty"`
 	SelfEmail string `json:"selfEmail,omitempty"`
+	Position  string `json:"position,omitempty"`
 
 	// Departments arranged from the current user's department
 	// to the top-level department.
@@ -36,11 +37,13 @@ type Department struct {
 	ID   string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
 	PID  string `json:"pid,omitempty"`
+	Attr string `json:"attr,omitempty"`
 }
 
 type Leader struct {
 	ID   string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
+	Attr string `json:"attr,omitempty"`
 }
 
 type Role struct {
@@ -66,5 +69,6 @@ type SearchUser struct {
 
 	LeaderID string `json:"leaderID,omitempty"`
 
-	OrderBy []string `json:"orderBy,omitempty"`
+	OrderBy  []string `json:"orderBy,omitempty"`
+	Position string   `json:"position,omitempty"`
 }

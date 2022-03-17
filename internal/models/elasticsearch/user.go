@@ -120,6 +120,9 @@ func (u *user) Search(ctx context.Context, query *v1alpha1.SearchUser, page, siz
 	if query.RoleName != "" {
 		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("roles.name", query.RoleName))
 	}
+	if query.Position != "" {
+		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("position", query.Position))
+	}
 
 	ql = ql.Query(elastic.NewBoolQuery().Must(mustQuery...))
 
