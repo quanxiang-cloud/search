@@ -48,6 +48,14 @@
               }
             }
           },
+          "useStatus" : {
+            "type" : "integer",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword"
+              }
+            }
+          },
           "tenantID" : {
             "type" : "text",
             "fields" : {
@@ -80,6 +88,15 @@
             }
           },
           "phone" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "type" : "keyword",
+                "ignore_above" : 256
+              }
+            }
+          },
+          "position" : {
             "type" : "text",
             "fields" : {
               "keyword" : {

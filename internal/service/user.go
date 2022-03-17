@@ -103,6 +103,9 @@ var UserInfo = graphql.NewObject(
 			"leaders": &graphql.Field{
 				Type: graphql.NewList(graphql.NewList(leader)),
 			},
+			"position": &graphql.Field{
+				Type: graphql.String,
+			},
 		},
 	},
 )
@@ -224,6 +227,9 @@ func (u *user) query() error {
 							Type: graphql.String,
 						},
 						"roleName": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"position": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
 					},
