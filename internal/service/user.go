@@ -232,6 +232,9 @@ func (u *user) query() error {
 						"departmentName": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
+						"departmentID": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
 						"roleName": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
