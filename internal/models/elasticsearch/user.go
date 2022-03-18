@@ -85,7 +85,7 @@ func (u *user) Search(ctx context.Context, query *v1alpha1.SearchUser, page, siz
 	mustQuery = append(mustQuery, elastic.NewTermQuery("tenantID", query.TenantID))
 
 	if query.DepartmentID != "" {
-		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("departments.id", query.DepartmentID))
+		mustQuery = append(mustQuery, elastic.NewTermQuery("departments.id.keyword", query.DepartmentID))
 	}
 	if query.RoleID != "" {
 		mustQuery = append(mustQuery, elastic.NewTermQuery("roles.id", query.RoleID))

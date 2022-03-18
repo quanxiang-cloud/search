@@ -16,6 +16,4 @@ type SearchDepartment struct {
 	OrderBy []string `json:"orderBy,omitempty"`
 }
 
-func (*Department) Index() string {
-	return "department"
-}
+const DepartmentIndex = "department"

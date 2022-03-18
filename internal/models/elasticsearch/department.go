@@ -28,54 +28,6 @@ func (u *department) index() string {
 	return "department"
 }
 
-func (u *department) Get(ctx context.Context, depID string) (*v1alpha1.Department, error) {
-	result, err := u.client.Search().
-		Index(u.index()).
-		Query(
-			elastic.NewTermQuery("id", depID),
-		).
-		Do(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(result.Hits.Hits) == 0 {
-		return nil, nil
-	}
-
-	dep := new(v1alpha1.Department)
-	err = json.Unmarshal(result.Hits.Hits[0].Source, dep)
-	if err != nil {
-		return nil, err
-	}
-
-	return dep, nil
-}
-
-func (u *department) List(ctx context.Context, userIDs []interface{}) ([]*v1alpha1.Department, error) {
-	result, err := u.client.Search().
-		Index(u.index()).
-		Query(
-			elastic.NewTermsQuery("id", userIDs...),
-		).
-		Do(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	deps := make([]*v1alpha1.Department, 0, len(userIDs))
-	for _, hit := range result.Hits.Hits {
-		dep := new(v1alpha1.Department)
-		err := json.Unmarshal(hit.Source, dep)
-		if err != nil {
-			return nil, err
-		}
-		deps = append(deps, dep)
-	}
-
-	return deps, nil
-}
-
 func (u *department) Search(ctx context.Context, query *v1alpha1.SearchDepartment, page, size int) ([]*v1alpha1.Department, int64, error) {
 	ql := u.client.Search().Index(u.index())
 

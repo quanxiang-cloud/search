@@ -66,6 +66,4 @@ type SearchUser struct {
 	Position string   `json:"position,omitempty"`
 }
 
-func (*User) Index() string {
-	return "user"
-}
+const UserIndex = "user"
