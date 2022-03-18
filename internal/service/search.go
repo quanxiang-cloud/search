@@ -19,6 +19,7 @@ type Search struct {
 	log logr.Logger
 
 	user
+	department
 }
 
 func NewSearch(ctx context.Context, opts ...Option) (*Search, error) {
@@ -41,6 +42,8 @@ func NewSearch(ctx context.Context, opts ...Option) (*Search, error) {
 func (s *Search) newSchema() error {
 	s.user.log = s.log.WithName("user")
 	s.user.newSchema()
+	s.department.log = s.log.WithName("department")
+	s.department.newSchema()
 	return nil
 }
 
@@ -54,18 +57,35 @@ type base struct {
 type SearchUserReq struct {
 	base
 }
-
 type SearchUserResp struct {
 	Data interface{}
 }
 
+type SearchDepartmentReq struct {
+	base
+}
+type SearchDepartmentResp struct {
+	Data interface{}
+}
+
 func (s *Search) SearchUser(ctx context.Context, req *SearchUserReq) (*SearchUserResp, error) {
-	data, err := s.search(ctx, s.querySchema, req.base)
+	data, err := s.search(ctx, s.user.querySchema, req.base)
 	if err != nil {
 		return &SearchUserResp{}, err
 	}
 
 	return &SearchUserResp{
+		Data: data,
+	}, nil
+}
+
+func (s *Search) SearchDepartment(ctx context.Context, req *SearchDepartmentReq) (*SearchDepartmentResp, error) {
+	data, err := s.search(ctx, s.department.querySchema, req.base)
+	if err != nil {
+		return &SearchDepartmentResp{}, err
+	}
+
+	return &SearchDepartmentResp{
 		Data: data,
 	}, nil
 }

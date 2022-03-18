@@ -9,7 +9,7 @@ import (
 	"github.com/quanxiang-cloud/search/pkg/apis/v1alpha1"
 )
 
-var department = graphql.NewObject(
+var depInfo = graphql.NewObject(
 	graphql.ObjectConfig{
 		Name: "department",
 		Fields: graphql.Fields{
@@ -101,7 +101,7 @@ var UserInfo = graphql.NewObject(
 				Type: graphql.String,
 			},
 			"departments": &graphql.Field{
-				Type: graphql.NewList(graphql.NewList(department)),
+				Type: graphql.NewList(graphql.NewList(depInfo)),
 			},
 			"roles": &graphql.Field{
 				Type: graphql.NewList(role),

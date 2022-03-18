@@ -108,3 +108,19 @@ func transform(data interface{}, name string) map[string]interface{} {
 
 	return result
 }
+
+func (s *search) SearchDepartment(c *gin.Context) {
+	query := c.Query("query")
+
+	req := &service.SearchDepartmentReq{}
+	req.TenantID = c.GetHeader("Tenant-Id")
+
+	req.Query = query
+	result, err := s.s.SearchDepartment(header.MutateContext(c), req)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	c.JSON(http.StatusOK, transform(result.Data, "query"))
+}
