@@ -17,6 +17,7 @@ type user struct {
 	client *elastic.Client
 }
 
+// NewUser new
 func NewUser(ctx context.Context, client *elastic.Client) models.UserRepo {
 	return &user{
 		log:    util.LoggerFromContext(ctx).WithName("user"),
@@ -84,7 +85,7 @@ func (u *user) Search(ctx context.Context, query *v1alpha1.SearchUser, page, siz
 	mustQuery = append(mustQuery, elastic.NewTermQuery("tenantID", query.TenantID))
 
 	if query.DepartmentID != "" {
-		mustQuery = append(mustQuery, elastic.NewTermQuery("departments.id", query.DepartmentID))
+		mustQuery = append(mustQuery, elastic.NewTermQuery("departments.id.keyword", query.DepartmentID))
 	}
 	if query.RoleID != "" {
 		mustQuery = append(mustQuery, elastic.NewTermQuery("roles.id", query.RoleID))

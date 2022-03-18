@@ -13,10 +13,12 @@ import (
 	"github.com/quanxiang-cloud/search/pkg/util"
 )
 
+// Router router
 type Router struct {
 	router *gin.Engine
 }
 
+// NewRouter new
 func NewRouter(ctx context.Context, conf *config.Config) (*Router, error) {
 	e := gin.New()
 	e.Use(ginlogger.LoggerFunc(), ginlogger.RecoveryFunc())
@@ -43,6 +45,7 @@ func NewRouter(ctx context.Context, conf *config.Config) (*Router, error) {
 			s: searchService,
 		}
 		v1.GET("/user", s.SearchUser)
+		v1.GET("/department", s.SearchDepartment)
 		v1.GET("/department/member", s.DepartmentMember)
 		v1.GET("/subordinate", s.Subordinate)
 		v1.GET("/leader", s.Leader)
@@ -66,6 +69,7 @@ func NewRouter(ctx context.Context, conf *config.Config) (*Router, error) {
 	}, nil
 }
 
+// Run start
 func (r *Router) Run(port string) {
 	r.router.Run(port)
 }

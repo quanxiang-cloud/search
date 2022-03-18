@@ -33,13 +33,6 @@ type User struct {
 	Roles []Role `json:"roles,omitempty"`
 }
 
-type Department struct {
-	ID   string `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
-	PID  string `json:"pid,omitempty"`
-	Attr string `json:"attr,omitempty"`
-}
-
 type Leader struct {
 	ID   string `json:"id,omitempty"`
 	Name string `json:"name,omitempty"`
@@ -72,3 +65,5 @@ type SearchUser struct {
 	OrderBy  []string `json:"orderBy,omitempty"`
 	Position string   `json:"position,omitempty"`
 }
+
+const UserIndex = "user"
