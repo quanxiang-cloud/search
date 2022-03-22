@@ -57,7 +57,7 @@ func (u *user) List(ctx context.Context, userIDs []interface{}) ([]*v1alpha1.Use
 	result, err := u.client.Search().
 		Index(u.index()).
 		Query(
-			elastic.NewTermsQuery("id", userIDs...),
+			elastic.NewTermsQuery("_id", userIDs...),
 		).
 		Do(ctx)
 	if err != nil {

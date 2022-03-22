@@ -3,8 +3,6 @@ package service
 import (
 	"errors"
 	"fmt"
-	"reflect"
-
 	"github.com/go-logr/logr"
 	"github.com/graphql-go/graphql"
 	"github.com/quanxiang-cloud/search/internal/models"
@@ -286,16 +284,16 @@ func (u *user) getByIDs() error {
 }
 
 func (u *user) getByIDsResolve(p graphql.ResolveParams) (interface{}, error) {
-	id, ok := p.Args["ids"]
+	ids, ok := p.Args["ids"].([]interface{})
 	if !ok {
-		return nil, errors.New("invaild id type")
+		return nil, errors.New("invalid id type")
 	}
-	ids := make([]interface{}, 0)
-	if val := reflect.ValueOf(id); val.CanInterface() {
-		if v1 := val.Interface().([]interface{}); ok {
-			ids = v1
-		}
-	}
+	//ids := make([]interface{}, 0)
+	//if val := reflect.ValueOf(id); val.CanInterface() {
+	//	if v1 := val.Interface().([]interface{}); ok {
+	//		ids = v1
+	//	}
+	//}
 	list, err := u.userRepo.List(p.Context, ids)
 	if err != nil {
 		u.log.Error(err, "search user")
