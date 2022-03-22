@@ -50,6 +50,7 @@ func NewRouter(ctx context.Context, conf *config.Config) (*Router, error) {
 		v1.GET("/subordinate", s.Subordinate)
 		v1.GET("/leader", s.Leader)
 		v1.GET("/role/member", s.RoleMember)
+		v1.GET("/users", s.UserByIDs)
 	}
 
 	{

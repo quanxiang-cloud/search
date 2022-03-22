@@ -1,7 +1,9 @@
 package service
 
 import (
+	"errors"
 	"fmt"
+	"reflect"
 
 	"github.com/go-logr/logr"
 	"github.com/graphql-go/graphql"
@@ -139,8 +141,8 @@ type user struct {
 	leaderSchema           graphql.Schema
 	rolememberSchema       graphql.Schema
 	postmemberSchema       graphql.Schema
-
-	userRepo models.UserRepo
+	userByIDsSchema        graphql.Schema
+	userRepo               models.UserRepo
 }
 
 func (u *user) newSchema() error {
@@ -149,10 +151,6 @@ func (u *user) newSchema() error {
 		return err
 	}
 	err = u.departmentMember()
-	if err != nil {
-		return err
-	}
-	err = u.query()
 	if err != nil {
 		return err
 	}
@@ -165,6 +163,10 @@ func (u *user) newSchema() error {
 		return err
 	}
 	err = u.roleMember()
+	if err != nil {
+		return err
+	}
+	err = u.getByIDs()
 	if err != nil {
 		return err
 	}
@@ -256,6 +258,56 @@ func (u *user) query() error {
 	u.querySchema = schema
 
 	return nil
+}
+
+func (u *user) getByIDs() error {
+	schema, err := graphql.NewSchema(graphql.SchemaConfig{
+		Query: graphql.NewObject(graphql.ObjectConfig{
+			Name: "_userQuery",
+			Fields: graphql.Fields{
+				"query": &graphql.Field{
+					Type: users,
+					Args: graphql.FieldConfigArgument{
+						"ids": &graphql.ArgumentConfig{
+							Type: graphql.NewList(graphql.String),
+						},
+					},
+					Resolve: u.getByIDsResolve,
+				},
+			},
+		}),
+	})
+	if err != nil {
+		return err
+	}
+	u.userByIDsSchema = schema
+
+	return nil
+}
+
+func (u *user) getByIDsResolve(p graphql.ResolveParams) (interface{}, error) {
+	id, ok := p.Args["ids"]
+	if !ok {
+		return nil, errors.New("invaild id type")
+	}
+	ids := make([]interface{}, 0)
+	if val := reflect.ValueOf(id); val.CanInterface() {
+		if v1 := val.Interface().([]interface{}); ok {
+			ids = v1
+		}
+	}
+	list, err := u.userRepo.List(p.Context, ids)
+	if err != nil {
+		u.log.Error(err, "search user")
+		return nil, err
+	}
+	return struct {
+		Users []*v1alpha1.User `json:"users,omitempty"`
+		Total int              `json:"total,omitempty"`
+	}{
+		Users: list,
+		Total: len(list),
+	}, nil
 }
 
 func (u *user) departmentMember() error {

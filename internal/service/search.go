@@ -166,6 +166,25 @@ func (s *Search) RoleMember(ctx context.Context, req *RoleMemberReq) (*RoleMembe
 	}, nil
 }
 
+type UserByIDsReq struct {
+	base
+}
+
+type UserByIDsResp struct {
+	Data interface{}
+}
+
+func (s *Search) UserByIDs(ctx context.Context, req *UserByIDsReq) (*UserByIDsResp, interface{}) {
+	data, err := s.search(ctx, s.user.userByIDsSchema, req.base)
+	if err != nil {
+		return &UserByIDsResp{}, err
+	}
+
+	return &UserByIDsResp{
+		Data: data,
+	}, nil
+}
+
 func (s *Search) search(ctx context.Context, schema graphql.Schema, base base) (interface{}, error) {
 	if base.TenantID == "" {
 		err := fmt.Errorf("tenant id is must")
