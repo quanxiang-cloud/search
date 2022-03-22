@@ -288,12 +288,6 @@ func (u *user) getByIDsResolve(p graphql.ResolveParams) (interface{}, error) {
 	if !ok {
 		return nil, errors.New("invalid id type")
 	}
-	//ids := make([]interface{}, 0)
-	//if val := reflect.ValueOf(id); val.CanInterface() {
-	//	if v1 := val.Interface().([]interface{}); ok {
-	//		ids = v1
-	//	}
-	//}
 	list, err := u.userRepo.List(p.Context, ids)
 	if err != nil {
 		u.log.Error(err, "search user")
