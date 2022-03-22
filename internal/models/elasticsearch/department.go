@@ -35,9 +35,6 @@ func (u *department) Search(ctx context.Context, query *v1alpha1.SearchDepartmen
 
 	mustQuery = append(mustQuery, elastic.NewTermQuery("tenantID", query.TenantID))
 
-	if query.ID != "" {
-		mustQuery = append(mustQuery, elastic.NewTermQuery("id", query.ID))
-	}
 	if query.Name != "" {
 		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("name", query.Name))
 	}
@@ -51,7 +48,8 @@ func (u *department) Search(ctx context.Context, query *v1alpha1.SearchDepartmen
 		}
 		ql = ql.Sort(orderBy, false)
 	}
-	ql = ql.Sort("name.keyword", true)
+
+	ql = ql.Sort("id.keyword", true)
 
 	result, err := ql.From((page - 1) * size).Size(size).
 		Do(ctx)
