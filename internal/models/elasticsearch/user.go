@@ -82,8 +82,6 @@ func (u *user) Search(ctx context.Context, query *v1alpha1.SearchUser, page, siz
 
 	mustQuery := make([]elastic.Query, 0)
 
-	mustQuery = append(mustQuery, elastic.NewTermQuery("tenantID", query.TenantID))
-
 	if query.DepartmentID != "" {
 		mustQuery = append(mustQuery, elastic.NewTermQuery("departments.id.keyword", query.DepartmentID))
 	}
@@ -124,9 +122,12 @@ func (u *user) Search(ctx context.Context, query *v1alpha1.SearchUser, page, siz
 	if query.Position != "" {
 		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("position", query.Position))
 	}
-
+	if query.TenantID != "" {
+		mustQuery = append(mustQuery, elastic.NewTermQuery("tenantID", query.TenantID))
+	} else {
+		mustQuery = append(mustQuery, elastic.NewExistsQuery("tenantID"))
+	}
 	ql = ql.Query(elastic.NewBoolQuery().Must(mustQuery...))
-
 	for _, orderBy := range query.OrderBy {
 		if strings.HasPrefix(orderBy, "-") {
 			ql = ql.Sort(orderBy[1:], true)
