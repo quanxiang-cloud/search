@@ -33,12 +33,17 @@ func (u *department) Search(ctx context.Context, query *v1alpha1.SearchDepartmen
 
 	mustQuery := make([]elastic.Query, 0)
 
-	mustQuery = append(mustQuery, elastic.NewTermQuery("tenantID", query.TenantID))
-
+	if query.ID != "" {
+		mustQuery = append(mustQuery, elastic.NewTermQuery("id", query.ID))
+	}
 	if query.Name != "" {
 		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("name", query.Name))
 	}
-
+	if query.TenantID != "" {
+		mustQuery = append(mustQuery, elastic.NewTermQuery("tenantID", query.TenantID))
+	} else {
+		mustQuery = append(mustQuery, elastic.NewExistsQuery("tenantID"))
+	}
 	ql = ql.Query(elastic.NewBoolQuery().Must(mustQuery...))
 
 	for _, orderBy := range query.OrderBy {

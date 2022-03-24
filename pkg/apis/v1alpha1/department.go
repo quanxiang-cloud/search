@@ -5,7 +5,7 @@ type Department struct {
 	Name     string `json:"name,omitempty"`
 	PID      string `json:"pid,omitempty"`
 	Attr     string `json:"attr,omitempty"`
-	TenantID string `json:"tenantID,omitempty"`
+	TenantID string `json:"tenantID"`
 }
 
 type SearchDepartment struct {

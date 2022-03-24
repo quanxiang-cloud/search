@@ -186,11 +186,6 @@ func (s *Search) UserByIDs(ctx context.Context, req *UserByIDsReq) (*UserByIDsRe
 }
 
 func (s *Search) search(ctx context.Context, schema graphql.Schema, base base) (interface{}, error) {
-	if base.TenantID == "" {
-		err := fmt.Errorf("tenant id is must")
-		s.log.Info(err.Error(), header.GetRequestIDKV(ctx).Fuzzy()...)
-		return nil, err
-	}
 	params := graphql.Params{
 		Context:       ctx,
 		Schema:        schema,
