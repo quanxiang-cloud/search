@@ -9,7 +9,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
-      - run: golint -set_exit_status $(go list ./... | grep -v /vendor/)
+#      - run: golint -set_exit_status $(go list ./... | grep -v /vendor/)
   test:
     runs-on: self-hosted
     steps:
