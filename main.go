@@ -14,7 +14,7 @@ import (
 
 func main() {
 	var configFile string
-	flag.StringVar(&configFile, "f", "/configs/config.yml", "config path")
+	flag.StringVar(&configFile, "config", "/configs/config.yml", "config path")
 	flag.Parse()
 
 	zapLog, err := zap.NewDevelopment()
