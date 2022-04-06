@@ -1,7 +1,7 @@
 name: search
 env:
   PROJECT_NAME: search
-  IMAGE_PREFIX: dockerhub.qingcloud.com/lowcode
+  IMAGE_PREFIX: qxcr.xyz/lowcode
   DATE: $(date "+%Y%m%d")
 on: [ push, pull_request ]
 jobs:
