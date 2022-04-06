@@ -15,4 +15,4 @@ COPY --from=builder ./build/search ./cmd/
 
 
 EXPOSE 80
-
+ENTRYPOINT ["./cmd/search","-config=/configs/config.yml"]
