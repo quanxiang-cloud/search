@@ -58,7 +58,7 @@ func (u *user) List(ctx context.Context, userIDs []interface{}) ([]*v1alpha1.Use
 		Index(u.index()).
 		Query(
 			elastic.NewTermsQuery("id.keyword", userIDs...),
-		).
+		).From(0).Size(99).
 		Do(ctx)
 	if err != nil {
 		return nil, err
