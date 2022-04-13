@@ -9,11 +9,10 @@ type Department struct {
 }
 
 type SearchDepartment struct {
-	TenantID string `json:"tenantID,omitempty"`
-
-	Name    string   `json:"name,omitempty"`
-	ID      string   `json:"id,omitempty"`
-	OrderBy []string `json:"orderBy,omitempty"`
+	TenantID string        `json:"tenantID,omitempty"`
+	Name     string        `json:"name,omitempty"`
+	IDS      []interface{} `json:"ids,omitempty"`
+	OrderBy  []string      `json:"orderBy,omitempty"`
 }
 
 const DepartmentIndex = "department"

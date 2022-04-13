@@ -33,8 +33,8 @@ func (u *department) Search(ctx context.Context, query *v1alpha1.SearchDepartmen
 
 	mustQuery := make([]elastic.Query, 0)
 
-	if query.ID != "" {
-		mustQuery = append(mustQuery, elastic.NewTermQuery("id", query.ID))
+	if len(query.IDS) != 0 {
+		mustQuery = append(mustQuery, elastic.NewTermsQuery("id.keyword", query.IDS...))
 	}
 	if query.Name != "" {
 		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("name", query.Name))

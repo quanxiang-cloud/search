@@ -97,8 +97,8 @@ func (u *department) query() error {
 						"name": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
-						"id": &graphql.ArgumentConfig{
-							Type: graphql.String,
+						"ids": &graphql.ArgumentConfig{
+							Type: graphql.NewList(graphql.String),
 						},
 					},
 					),
