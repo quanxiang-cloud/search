@@ -3,8 +3,6 @@ package elasticsearch
 import (
 	"context"
 	"encoding/json"
-	"strings"
-
 	"github.com/go-logr/logr"
 	"github.com/olivere/elastic/v7"
 	"github.com/quanxiang-cloud/search/internal/models"
@@ -44,19 +42,19 @@ func (u *department) Search(ctx context.Context, query *v1alpha1.SearchDepartmen
 	} else {
 		mustQuery = append(mustQuery, elastic.NewExistsQuery("tenantID"))
 	}
-	ql = ql.Query(elastic.NewBoolQuery().Must(mustQuery...))
+	//ql = ql.Query(elastic.NewBoolQuery().Must(mustQuery...))
+	//
+	//for _, orderBy := range query.OrderBy {
+	//	if strings.HasPrefix(orderBy, "-") {
+	//		ql = ql.Sort(orderBy[1:], true)
+	//		continue
+	//	}
+	//	ql = ql.Sort(orderBy, false)
+	//}
 
-	for _, orderBy := range query.OrderBy {
-		if strings.HasPrefix(orderBy, "-") {
-			ql = ql.Sort(orderBy[1:], true)
-			continue
-		}
-		ql = ql.Sort(orderBy, false)
-	}
+	//ql = ql.Sort("id.keyword", true)
 
-	ql = ql.Sort("id.keyword", true)
-
-	result, err := ql.From((page - 1) * size).Size(size).
+	result, err := ql.From(0).Size(99).
 		Do(ctx)
 
 	if err != nil {
