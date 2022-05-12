@@ -20,7 +20,7 @@ var depInfo = graphql.NewObject(
 				Type: graphql.String,
 			},
 			"attr": &graphql.Field{
-				Type: graphql.String,
+				Type: graphql.Int,
 			},
 		},
 	},

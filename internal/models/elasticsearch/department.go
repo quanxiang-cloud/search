@@ -8,6 +8,7 @@ import (
 	"github.com/quanxiang-cloud/search/internal/models"
 	"github.com/quanxiang-cloud/search/pkg/apis/v1alpha1"
 	"github.com/quanxiang-cloud/search/pkg/util"
+	"strings"
 )
 
 type department struct {
@@ -31,9 +32,6 @@ func (u *department) Search(ctx context.Context, query *v1alpha1.SearchDepartmen
 
 	mustQuery := make([]elastic.Query, 0)
 
-	if len(query.IDS) != 0 {
-		mustQuery = append(mustQuery, elastic.NewTermsQuery("id.keyword", query.IDS...))
-	}
 	if query.Name != "" {
 		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("name", query.Name))
 	}
@@ -42,19 +40,24 @@ func (u *department) Search(ctx context.Context, query *v1alpha1.SearchDepartmen
 	} else {
 		mustQuery = append(mustQuery, elastic.NewExistsQuery("tenantID"))
 	}
-	//ql = ql.Query(elastic.NewBoolQuery().Must(mustQuery...))
-	//
-	//for _, orderBy := range query.OrderBy {
-	//	if strings.HasPrefix(orderBy, "-") {
-	//		ql = ql.Sort(orderBy[1:], true)
-	//		continue
-	//	}
-	//	ql = ql.Sort(orderBy, false)
-	//}
+	if len(query.Attr) > 0 {
+		for k := range query.Attr {
+			mustQuery = append(mustQuery, elastic.NewTermQuery("attr", query.Attr[k]))
+		}
+	}
+	ql = ql.Query(elastic.NewBoolQuery().Must(mustQuery...))
 
-	//ql = ql.Sort("id.keyword", true)
+	for _, orderBy := range query.OrderBy {
+		if strings.HasPrefix(orderBy, "-") {
+			ql = ql.Sort(orderBy[1:], true)
+			continue
+		}
+		ql = ql.Sort(orderBy, false)
+	}
 
-	result, err := ql.From(0).Size(99).
+	ql = ql.Sort("id.keyword", true)
+
+	result, err := ql.From((page - 1) * size).Size(size).
 		Do(ctx)
 
 	if err != nil {
@@ -73,4 +76,28 @@ func (u *department) Search(ctx context.Context, query *v1alpha1.SearchDepartmen
 	}
 
 	return deps, result.Hits.TotalHits.Value, nil
+}
+
+func (u *department) List(ctx context.Context, depIDs []interface{}) ([]*v1alpha1.Department, error) {
+	result, err := u.client.Search().
+		Index(u.index()).
+		Query(
+			elastic.NewTermsQuery("id.keyword", depIDs...),
+		).From(0).Size(99).
+		Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	deps := make([]*v1alpha1.Department, 0, len(depIDs))
+	for _, hit := range result.Hits.Hits {
+		dep := new(v1alpha1.Department)
+		err := json.Unmarshal(hit.Source, dep)
+		if err != nil {
+			return nil, err
+		}
+		deps = append(deps, dep)
+	}
+
+	return deps, nil
 }

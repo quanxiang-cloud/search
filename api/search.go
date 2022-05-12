@@ -141,3 +141,20 @@ func (s *search) SearchDepartment(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, transform(result.Data, "query"))
 }
+
+func (s *search) DepartmentsByIDs(c *gin.Context) {
+	query := c.Query("query")
+
+	req := &service.DepartmentsByIDsReq{}
+	req.TenantID = c.GetHeader("Tenant-Id")
+
+	req.Query = query
+	result, err := s.s.DepartmentByIDs(header.MutateContext(c), req)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+	c.JSON(http.StatusOK, transform(result.Data, "query"))
+
+}
