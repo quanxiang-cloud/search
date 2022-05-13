@@ -79,11 +79,17 @@ func (u *department) Search(ctx context.Context, query *v1alpha1.SearchDepartmen
 }
 
 func (u *department) List(ctx context.Context, depIDs []interface{}) ([]*v1alpha1.Department, error) {
+	var size = 0
+	if len(depIDs) > 100 {
+		size = 99
+	} else {
+		size = len(depIDs)
+	}
 	result, err := u.client.Search().
 		Index(u.index()).
 		Query(
 			elastic.NewTermsQuery("id.keyword", depIDs...),
-		).From(0).Size(99).
+		).From(0).Size(size).
 		Do(ctx)
 	if err != nil {
 		return nil, err

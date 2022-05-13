@@ -19,8 +19,13 @@
             "idLeader": {
               "type": "integer"
             },
-            "attr": {
-              "type": "integer"
+            "attr" : {
+              "type" : "integer",
+              "fields" : {
+                "keyword" : {
+                  "type" : "keyword"
+                }
+              }
             },
             "name": {
               "type": "text",
