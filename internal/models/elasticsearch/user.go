@@ -54,11 +54,17 @@ func (u *user) Get(ctx context.Context, userID string) (*v1alpha1.User, error) {
 }
 
 func (u *user) List(ctx context.Context, userIDs []interface{}) ([]*v1alpha1.User, error) {
+	var size = 0
+	if len(userIDs) > 100 {
+		size = 99
+	} else {
+		size = len(userIDs)
+	}
 	result, err := u.client.Search().
 		Index(u.index()).
 		Query(
 			elastic.NewTermsQuery("id.keyword", userIDs...),
-		).
+		).From(0).Size(size).
 		Do(ctx)
 	if err != nil {
 		return nil, err
@@ -89,7 +95,7 @@ func (u *user) Search(ctx context.Context, query *v1alpha1.SearchUser, page, siz
 		mustQuery = append(mustQuery, elastic.NewTermQuery("roles.id", query.RoleID))
 	}
 	if query.LeaderID != "" {
-		mustQuery = append(mustQuery, elastic.NewTermQuery("leaders.id", query.LeaderID))
+		mustQuery = append(mustQuery, elastic.NewTermQuery("leaders.id.keyword", query.LeaderID))
 	}
 	if query.Name != "" {
 		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("name", query.Name))

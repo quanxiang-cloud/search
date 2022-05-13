@@ -90,6 +90,25 @@ func (s *Search) SearchDepartment(ctx context.Context, req *SearchDepartmentReq)
 	}, nil
 }
 
+type DepartmentsByIDsReq struct {
+	base
+}
+
+type DepartmentsByIDsResp struct {
+	Data interface{}
+}
+
+func (s *Search) DepartmentByIDs(ctx context.Context, req *DepartmentsByIDsReq) (*DepartmentsByIDsResp, interface{}) {
+	data, err := s.search(ctx, s.department.queryByIDsSchema, req.base)
+	if err != nil {
+		return &DepartmentsByIDsResp{}, err
+	}
+
+	return &DepartmentsByIDsResp{
+		Data: data,
+	}, nil
+}
+
 type DepartmentMemberReq struct {
 	base
 }

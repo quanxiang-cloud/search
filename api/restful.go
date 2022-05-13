@@ -16,6 +16,7 @@ import (
 // Router router
 type Router struct {
 	router *gin.Engine
+	Probe  *probe.Probe
 }
 
 // NewRouter new
@@ -46,15 +47,15 @@ func NewRouter(ctx context.Context, conf *config.Config) (*Router, error) {
 		}
 		v1.GET("/user", s.SearchUser)
 		v1.GET("/department", s.SearchDepartment)
+		v1.GET("/departments", s.DepartmentsByIDs)
 		v1.GET("/department/member", s.DepartmentMember)
 		v1.GET("/subordinate", s.Subordinate)
 		v1.GET("/leader", s.Leader)
 		v1.GET("/role/member", s.RoleMember)
 		v1.GET("/users", s.UserByIDs)
 	}
-
+	probe := probe.New(util.LoggerFromContext(ctx))
 	{
-		probe := probe.New(util.LoggerFromContext(ctx))
 		e.GET("liveness", func(c *gin.Context) {
 			probe.LivenessProbe(c.Writer, c.Request)
 		})
@@ -64,13 +65,14 @@ func NewRouter(ctx context.Context, conf *config.Config) (*Router, error) {
 		})
 
 	}
-
 	return &Router{
 		router: e,
+		Probe:  probe,
 	}, nil
 }
 
 // Run start
 func (r *Router) Run(port string) {
 	r.router.Run(port)
+
 }

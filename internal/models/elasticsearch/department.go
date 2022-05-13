@@ -3,13 +3,12 @@ package elasticsearch
 import (
 	"context"
 	"encoding/json"
-	"strings"
-
 	"github.com/go-logr/logr"
 	"github.com/olivere/elastic/v7"
 	"github.com/quanxiang-cloud/search/internal/models"
 	"github.com/quanxiang-cloud/search/pkg/apis/v1alpha1"
 	"github.com/quanxiang-cloud/search/pkg/util"
+	"strings"
 )
 
 type department struct {
@@ -33,9 +32,6 @@ func (u *department) Search(ctx context.Context, query *v1alpha1.SearchDepartmen
 
 	mustQuery := make([]elastic.Query, 0)
 
-	if query.ID != "" {
-		mustQuery = append(mustQuery, elastic.NewTermQuery("id", query.ID))
-	}
 	if query.Name != "" {
 		mustQuery = append(mustQuery, elastic.NewMatchPhrasePrefixQuery("name", query.Name))
 	}
@@ -43,6 +39,11 @@ func (u *department) Search(ctx context.Context, query *v1alpha1.SearchDepartmen
 		mustQuery = append(mustQuery, elastic.NewTermQuery("tenantID", query.TenantID))
 	} else {
 		mustQuery = append(mustQuery, elastic.NewExistsQuery("tenantID"))
+	}
+	if len(query.Attr) > 0 {
+		for k := range query.Attr {
+			mustQuery = append(mustQuery, elastic.NewTermQuery("attr", query.Attr[k]))
+		}
 	}
 	ql = ql.Query(elastic.NewBoolQuery().Must(mustQuery...))
 
@@ -75,4 +76,34 @@ func (u *department) Search(ctx context.Context, query *v1alpha1.SearchDepartmen
 	}
 
 	return deps, result.Hits.TotalHits.Value, nil
+}
+
+func (u *department) List(ctx context.Context, depIDs []interface{}) ([]*v1alpha1.Department, error) {
+	var size = 0
+	if len(depIDs) > 100 {
+		size = 99
+	} else {
+		size = len(depIDs)
+	}
+	result, err := u.client.Search().
+		Index(u.index()).
+		Query(
+			elastic.NewTermsQuery("id.keyword", depIDs...),
+		).From(0).Size(size).
+		Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	deps := make([]*v1alpha1.Department, 0, len(depIDs))
+	for _, hit := range result.Hits.Hits {
+		dep := new(v1alpha1.Department)
+		err := json.Unmarshal(hit.Source, dep)
+		if err != nil {
+			return nil, err
+		}
+		deps = append(deps, dep)
+	}
+
+	return deps, nil
 }

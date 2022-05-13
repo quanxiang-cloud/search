@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/go-logr/logr"
 	"github.com/graphql-go/graphql"
 	"github.com/quanxiang-cloud/search/internal/models"
@@ -16,6 +17,9 @@ var DepartmentInfo = graphql.NewObject(
 			},
 			"name": &graphql.Field{
 				Type: graphql.String,
+			},
+			"attr": &graphql.Field{
+				Type: graphql.Int,
 			},
 			"pid": &graphql.Field{
 				Type: graphql.String,
@@ -45,13 +49,18 @@ var departments = graphql.NewObject(
 )
 
 type department struct {
-	log         logr.Logger
-	querySchema graphql.Schema
-	depRepo     models.DepartmentRepo
+	log              logr.Logger
+	querySchema      graphql.Schema
+	queryByIDsSchema graphql.Schema
+	depRepo          models.DepartmentRepo
 }
 
 func (u *department) newSchema() error {
 	err := u.query()
+	if err != nil {
+		return err
+	}
+	err = u.getByIDs()
 	if err != nil {
 		return err
 	}
@@ -94,10 +103,10 @@ func (u *department) query() error {
 				"query": &graphql.Field{
 					Type: departments,
 					Args: newPageFeild(graphql.FieldConfigArgument{
-						"name": &graphql.ArgumentConfig{
-							Type: graphql.String,
+						"attr": &graphql.ArgumentConfig{
+							Type: graphql.NewList(graphql.Int),
 						},
-						"id": &graphql.ArgumentConfig{
+						"name": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
 					},
@@ -115,4 +124,48 @@ func (u *department) query() error {
 	u.querySchema = schema
 
 	return nil
+}
+
+func (u *department) getByIDs() error {
+	schema, err := graphql.NewSchema(graphql.SchemaConfig{
+		Query: graphql.NewObject(graphql.ObjectConfig{
+			Name: "_queryDepartmentsByIDs",
+			Fields: graphql.Fields{
+				"query": &graphql.Field{
+					Type: departments,
+					Args: graphql.FieldConfigArgument{
+						"ids": &graphql.ArgumentConfig{
+							Type: graphql.NewList(graphql.String),
+						},
+					},
+					Resolve: u.getByIDsResolve,
+				},
+			},
+		}),
+	})
+	if err != nil {
+		return err
+	}
+	u.queryByIDsSchema = schema
+
+	return nil
+}
+
+func (u *department) getByIDsResolve(p graphql.ResolveParams) (interface{}, error) {
+	ids, ok := p.Args["ids"].([]interface{})
+	if !ok {
+		return nil, errors.New("invalid id type")
+	}
+	list, err := u.depRepo.List(p.Context, ids)
+	if err != nil {
+		u.log.Error(err, "search department")
+		return nil, err
+	}
+	return struct {
+		Departments []*v1alpha1.Department `json:"departments,omitempty"`
+		Total       int                    `json:"total,omitempty"`
+	}{
+		Departments: list,
+		Total:       len(list),
+	}, nil
 }
