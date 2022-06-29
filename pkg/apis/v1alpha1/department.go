@@ -4,7 +4,7 @@ type Department struct {
 	ID       string `json:"id,omitempty"`
 	Name     string `json:"name,omitempty"`
 	PID      string `json:"pid,omitempty"`
-	Attr     int `json:"attr,omitempty"`
+	Attr     string `json:"attr,omitempty"`
 	TenantID string `json:"tenantID"`
 }
 
